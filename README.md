@@ -52,4 +52,22 @@ Abra http://localhost:3000. No celular (mesma rede Wi-Fi), use o IP da máquina
 
 ## Deploy
 
-Vercel: `npx vercel` na raiz do projeto (build já validado com `next build`).
+Repositório: [github.com/gstirma/strung](https://github.com/gstirma/strung) (privado).
+
+Hospedado na **Vercel**, conectada a este repositório — todo `git push` na `main`
+publica a nova versão automaticamente. O Next.js é detectado sozinho, sem nenhuma
+configuração (nada de `vercel.json`, variáveis de ambiente ou build command).
+
+Para publicar uma alteração:
+
+```bash
+git add -A && git commit -m "descrição" && git push
+```
+
+> **Atenção aos QR Codes:** eles são gerados a partir da URL em que o app está aberto.
+> Defina a URL definitiva (ou um domínio próprio) **antes** de imprimir e colar os QR
+> nas raquetes — se a URL mudar depois, os códigos já colados param de abrir o prontuário.
+
+> **Dados por dispositivo:** como tudo fica no `localStorage`, cada aparelho/URL tem sua
+> própria base. Ao migrar de `localhost` para a URL publicada, use
+> Configurações → Exportar/Importar para levar os dados.
