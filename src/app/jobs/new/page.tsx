@@ -3,10 +3,13 @@
 import { useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDB, actions, uid } from "@/lib/store";
-import { suggestNextTension, stockCostPerMeter, fmtBRL } from "@/lib/logic";
-import { searchStrings, findString, materialPT, TwuString } from "@/lib/twu-data";
+import { suggestNextTension, stockCostPerMeter, fmtBRL, otherUnit } from "@/lib/logic";
+import { TwuString } from "@/lib/twu-data";
+import { estimateMeters } from "@/lib/racquets-data";
+import { StringPicker } from "@/components/string-picker";
+import { StringProfileBars } from "@/components/charts";
 import { Card, Field, inputCls, Btn } from "@/components/ui";
-import { Sparkles, Star } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 function NewJobForm() {
   const db = useDB();
@@ -22,7 +25,6 @@ function NewJobForm() {
 
   const [stringMode, setStringMode] = useState<"stock" | "catalog" | "manual">("stock");
   const [stockItemId, setStockItemId] = useState("");
-  const [catalogQuery, setCatalogQuery] = useState("");
   const [selCatalog, setSelCatalog] = useState<TwuString | null>(null);
   const [manualString, setManualString] = useState("");
   const [gauge, setGauge] = useState("");
@@ -37,14 +39,7 @@ function NewJobForm() {
 
   const stock = db.stock.filter((s) => s.remainingMeters > 0);
   const selStock = stock.find((s) => s.id === stockItemId);
-  const catalogResults = useMemo(
-    () => (catalogQuery.length >= 2 ? searchStrings(catalogQuery, 12) : []),
-    [catalogQuery]
-  );
-  const offered = useMemo(
-    () => db.offeredStrings.map((n) => findString(n)).filter((s): s is TwuString => !!s),
-    [db.offeredStrings]
-  );
+  const racquet = db.racquets.find((r) => r.id === racquetId);
 
   // custo automático quando sai do estoque
   const autoCost = selStock
@@ -90,13 +85,23 @@ function NewJobForm() {
       <div className="flex flex-col gap-3">
         <Card className="flex flex-col gap-3">
           <Field label="Raquete *">
-            <select className={inputCls} value={racquetId} onChange={(e) => setRacquetId(e.target.value)}>
+            <select className={inputCls} value={racquetId}
+              onChange={(e) => {
+                setRacquetId(e.target.value);
+                const r = db.racquets.find((x) => x.id === e.target.value);
+                if (r?.headSize) setMeters(String(estimateMeters(r.headSize)));
+              }}>
               <option value="">Selecione…</option>
               {db.racquets.filter((r) => !r.archived).map((r) => {
                 const p = db.players.find((x) => x.id === r.playerId);
                 return <option key={r.id} value={r.id}>{r.brand} {r.model} — {p?.name ?? "?"}</option>;
               })}
             </select>
+            {racquet?.headSize && (
+              <span className="mt-1 block text-xs text-slate-500">
+                {racquet.headSize} pol² · sugestão de {estimateMeters(racquet.headSize)} m de corda
+              </span>
+            )}
           </Field>
 
           {suggestion && (
@@ -133,63 +138,23 @@ function NewJobForm() {
           )}
           {stringMode === "catalog" && (
             <div>
-              {offered.length > 0 && !selCatalog && (
-                <div className="mb-3">
-                  <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">
-                    Cordas que ofereço
+              <StringPicker
+                value={selCatalog?.name}
+                offered={db.offeredStrings}
+                placeholder="Ex.: Hyper-G, RPM Blast, Alu Power…"
+                onSelect={(s) => { setSelCatalog(s); if (s.gauge) setGauge(s.gauge); }}
+                onManual={(name) => {
+                  setSelCatalog(null);
+                  if (name) { setStringMode("manual"); setManualString(name); }
+                }}
+              />
+              {selCatalog && (
+                <div className="mt-3 rounded-xl border border-white/10 p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-sky-300">
+                    Perfil da corda
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {offered.map((s) => (
-                      <button key={s.name} type="button"
-                        onClick={() => { setSelCatalog(s); if (s.gauge) setGauge(s.gauge); }}
-                        className="inline-flex items-center gap-1 rounded-full bg-lime-300/15 px-2.5 py-1 text-xs font-medium text-lime-300 active:scale-95">
-                        <Star size={11} className="fill-lime-300" />
-                        {s.name}
-                      </button>
-                    ))}
-                  </div>
+                  <StringProfileBars string={selCatalog} />
                 </div>
-              )}
-              <Field label="Buscar corda (banco TWU · 750+ cordas)">
-                <input className={inputCls} placeholder="Ex.: Hyper-G, RPM Blast, Alu Power…"
-                  value={catalogQuery}
-                  onChange={(e) => { setCatalogQuery(e.target.value); setSelCatalog(null); }} />
-              </Field>
-              {selCatalog ? (
-                <div className="mt-2 rounded-xl border border-lime-300/30 bg-lime-300/10 p-3">
-                  <p className="text-sm font-semibold text-white">{selCatalog.name}</p>
-                  <p className="mt-1 text-xs text-slate-300">
-                    {materialPT(selCatalog.material)}
-                    {selCatalog.stiffness != null && ` · rigidez ${selCatalog.stiffness} lb/pol`}
-                    {selCatalog.tensionLoss != null && ` · perde ${selCatalog.tensionLoss}% de tensão`}
-                    {selCatalog.spin != null && ` · spin ${selCatalog.spin}`}
-                  </p>
-                </div>
-              ) : (
-                catalogResults.length > 0 && (
-                  <div className="mt-2 flex max-h-64 flex-col gap-1 overflow-y-auto">
-                    {catalogResults.map((s) => {
-                      const isOffered = db.offeredStrings.includes(s.name);
-                      return (
-                        <button key={s.name} type="button"
-                          onClick={() => { setSelCatalog(s); if (s.gauge) setGauge(s.gauge); }}
-                          className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left active:scale-[0.99] ${
-                            isOffered ? "border-lime-300/40 bg-lime-300/10" : "border-white/10"
-                          }`}>
-                          <span>
-                            <p className="text-sm text-white">{s.name}</p>
-                            <p className="text-[11px] text-slate-400">
-                              {materialPT(s.material)}
-                              {s.stiffness != null && ` · rigidez ${s.stiffness}`}
-                              {s.spin != null && ` · spin ${s.spin}`}
-                            </p>
-                          </span>
-                          {isOffered && <Star size={14} className="shrink-0 fill-lime-300 text-lime-300" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )
               )}
             </div>
           )}
@@ -208,7 +173,8 @@ function NewJobForm() {
             <Field label="Metros usados">
               <input className={inputCls} type="number" value={meters} onChange={(e) => setMeters(e.target.value)} />
             </Field>
-            <Field label={`Tensão principal (${unit}) *`}>
+            <Field label={`Tensão principal (${unit}) *`}
+              hint={tensionMain ? otherUnit(+tensionMain, unit) : undefined}>
               <input className={inputCls} type="number" step="0.5" placeholder={unit === "kg" ? "23" : "52"} value={tensionMain} onChange={(e) => setTensionMain(e.target.value)} />
             </Field>
             <Field label={`Tensão travessa (${unit})`}>

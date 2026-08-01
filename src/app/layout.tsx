@@ -8,11 +8,11 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "STRUNG · The Tennis String Manager",
+  title: "Alex Pretti Tennis · Encordoamento",
   description:
     "Prontuário da raquete: histórico de encordoamentos, tensões, cordas, avaliações e estoque. Alex Pretti Tennis — Qualidade, Precisão, Performance.",
   manifest: "/manifest.json",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "STRUNG" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Alex Pretti" },
   icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
 };
 

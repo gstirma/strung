@@ -25,7 +25,7 @@ export default function Dashboard() {
 
       {empty ? (
         <EmptyState
-          title="Bem-vindo ao STRUNG!"
+          title="Bem-vindo!"
           subtitle="Cadastre um jogador e uma raquete para começar o prontuário — ou carregue dados de exemplo para explorar o app."
           action={
             <div className="flex gap-2">

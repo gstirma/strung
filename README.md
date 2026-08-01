@@ -1,6 +1,6 @@
-#The Tennis String Manager
+# Alex Pretti Tennis · Gestão de Encordoamento
 
-**Alex Pretti Tennis — Qualidade · Precisão · Performance**
+**Qualidade · Precisão · Performance**
 
 PWA para controle completo de encordoamento de raquetes de tênis: jogadores,
 raquetes, cordas, tensões, avaliações, estoque e lucratividade.
@@ -52,7 +52,7 @@ Abra http://localhost:3000. No celular (mesma rede Wi-Fi), use o IP da máquina
 
 ## Deploy
 
-Repositório: [github.com/gstirma/strung](https://github.com/gstirma/strung) (privado).
+Repositório: [github.com/gstirma/strung](https://github.com/gstirma/strung) (público).
 
 Hospedado na **Vercel**, conectada a este repositório — todo `git push` na `main`
 publica a nova versão automaticamente. O Next.js é detectado sozinho, sem nenhuma

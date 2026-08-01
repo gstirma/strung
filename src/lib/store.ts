@@ -11,7 +11,7 @@ const KEY = "strung-db-v1";
 
 const DEFAULT_SETTINGS: Settings = {
   businessName: "Alex Pretti Tennis",
-  tensionUnit: "kg",
+  tensionUnit: "lb", // padrão do mercado brasileiro de encordoamento
   defaultLabor: 40,
   defaultMeters: 12,
 };
@@ -188,31 +188,31 @@ export const actions = {
       const jobs: StringJob[] = [
         {
           id: "demo-j1", racquetId: r1.id, date: iso(210), stringName: "Babolat RPM Blast",
-          gauge: "1.25", tensionMain: 24, tensionCross: 23, metersUsed: 12,
+          gauge: "1.25", tensionMain: 53, tensionCross: 51, metersUsed: 12,
           stringCost: 55, laborPrice: 40, totalCharged: 95, brokeAt: iso(150),
           feedback: { control: 4, power: 2, spin: 4, comfort: 2, durability: 4, comment: "Muito controle, mas dura no braço.", ratedAt: iso(200) },
         },
         {
           id: "demo-j2", racquetId: r1.id, date: iso(145), stringName: "Solinco Hyper-G",
-          gauge: "1.25", tensionMain: 23, tensionCross: 22, metersUsed: 12,
+          gauge: "1.25", tensionMain: 51, tensionCross: 49, metersUsed: 12,
           stringCost: 60, laborPrice: 40, totalCharged: 100, brokeAt: iso(80),
           feedback: { control: 4, power: 3, spin: 5, comfort: 3, durability: 4, comment: "Ótimo spin, gostei da tensão mais baixa.", ratedAt: iso(140) },
         },
         {
           id: "demo-j3", racquetId: r1.id, date: iso(75), stringName: "Solinco Hyper-G",
-          gauge: "1.25", tensionMain: 23, tensionCross: 22, metersUsed: 12,
+          gauge: "1.25", tensionMain: 51, tensionCross: 49, metersUsed: 12,
           stringCost: 60, laborPrice: 40, totalCharged: 100,
           feedback: { control: 5, power: 3, spin: 5, comfort: 4, durability: 4, comment: "Setup ideal até agora.", ratedAt: iso(60) },
         },
         {
           id: "demo-j4", racquetId: r2.id, date: iso(50), stringName: "Luxilon ALU Power",
-          gauge: "1.25", tensionMain: 23.5, tensionCross: 23, metersUsed: 12,
+          gauge: "1.25", tensionMain: 52, tensionCross: 51, metersUsed: 12,
           stringCost: 75, laborPrice: 40, totalCharged: 120,
           feedback: { control: 5, power: 3, spin: 3, comfort: 3, durability: 3, ratedAt: iso(40) },
         },
         {
           id: "demo-j5", racquetId: r3.id, date: iso(30), stringName: "Tecnifibre X-One Biphase",
-          gauge: "1.30", tensionMain: 24, tensionCross: 24, metersUsed: 12,
+          gauge: "1.30", tensionMain: 53, tensionCross: 53, metersUsed: 12,
           stringCost: 90, laborPrice: 40, totalCharged: 135,
           feedback: { control: 3, power: 5, spin: 2, comfort: 5, durability: 3, comment: "Confortável demais, quer mais controle.", ratedAt: iso(20) },
         },

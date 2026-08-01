@@ -4,11 +4,12 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDB, actions } from "@/lib/store";
-import { fmtBRL, fmtDate, daysSince } from "@/lib/logic";
+import { fmtBRL, fmtDate, daysSince, otherUnit } from "@/lib/logic";
 import { Card, SectionTitle, Btn, Field, inputCls, RatingInput, RatingDots, Badge } from "@/components/ui";
 import { Scissors, Trash2, FileDown } from "lucide-react";
 import { jobReceiptBlob, sharePdf } from "@/lib/pdf";
-import { findString, materialPT } from "@/lib/twu-data";
+import { findString, stringHeadline, usageAdvice, TWU_STRINGS } from "@/lib/twu-data";
+import { StringProfileBars, TensionDecayChart } from "@/components/charts";
 
 export default function JobDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -28,6 +29,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
   const unit = db.settings.tensionUnit;
   const profit = (job.totalCharged ?? 0) - (job.stringCost ?? 0);
   const twu = findString(job.stringName);
+  const advice = usageAdvice(twu ?? { name: "", material: "" }, player?.hoursPerWeek);
 
   const saveFeedback = () => {
     actions.upsertJob({ ...job, feedback: { ...fb, ratedAt: new Date().toISOString() } });
@@ -56,11 +58,14 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
               ? <Badge tone="red">quebrou em {fmtDate(job.brokeAt)}</Badge>
               : <Badge tone="lime">{daysSince(job.date)} dias em uso</Badge>}
           </div>
-          <p className="text-3xl font-black text-sky-300">
-            {job.tensionMain}
-            {job.tensionCross && job.tensionCross !== job.tensionMain && <span className="text-xl">/{job.tensionCross}</span>}
-            <span className="text-sm font-medium text-slate-400"> {unit}</span>
-          </p>
+          <div className="text-right">
+            <p className="text-3xl font-black text-sky-300">
+              {job.tensionMain}
+              {job.tensionCross && job.tensionCross !== job.tensionMain && <span className="text-xl">/{job.tensionCross}</span>}
+              <span className="text-sm font-medium text-slate-400"> {unit}</span>
+            </p>
+            <p className="text-xs text-slate-500">{otherUnit(job.tensionMain, unit)}</p>
+          </div>
         </div>
       </Card>
 
@@ -80,16 +85,42 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
       </Card>
 
       {twu && (
-        <Card className="mt-3 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-sky-300">Dados da corda (TWU)</p>
-          <p className="mt-1 text-xs text-slate-300">
-            {materialPT(twu.material)}
-            {twu.stiffness != null && <> · rigidez <b className="text-white">{twu.stiffness}</b> lb/pol</>}
-            {twu.tensionLoss != null && <> · perda de tensão <b className="text-white">{twu.tensionLoss}%</b></>}
-            {twu.energyReturn != null && <> · energia <b className="text-white">{twu.energyReturn}%</b></>}
-            {twu.spin != null && <> · spin <b className="text-white">{twu.spin}</b></>}
-          </p>
-        </Card>
+        <>
+          <SectionTitle>Características da corda</SectionTitle>
+          <Card>
+            <p className="text-sm font-semibold text-white">{stringHeadline(twu)}</p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Medições da Tennis Warehouse University, comparadas com {TWU_STRINGS.length} cordas.
+            </p>
+            <div className="mt-3">
+              <StringProfileBars string={twu} />
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-2 text-xs text-slate-400">
+              {twu.stiffness != null && <span>Rigidez <b className="text-white">{twu.stiffness}</b> lb/pol</span>}
+              {twu.tensionLoss != null && <span>Perde <b className="text-white">{twu.tensionLoss}%</b> da tensão</span>}
+              {twu.energyReturn != null && <span>Energia <b className="text-white">{twu.energyReturn}%</b></span>}
+              {twu.spin != null && <span>Spin <b className="text-white">{twu.spin}</b></span>}
+            </div>
+          </Card>
+
+          <SectionTitle>Queda da tensão ao longo do uso</SectionTitle>
+          <Card>
+            <TensionDecayChart string={twu} tension={job.tensionMain} unit={unit} />
+            <p className="mt-1 text-xs text-slate-500">
+              Partindo de {job.tensionMain} {unit}. A queda na puxada e na acomodação das
+              primeiras 24 h é <b className="text-slate-400">medida em laboratório pela TWU</b>;
+              o trecho das horas de jogo é uma <b className="text-slate-400">projeção</b> a partir
+              da perda por impacto medida. O maior tombo acontece antes da primeira bolada.
+            </p>
+            <div className="mt-2 rounded-xl bg-lime-300/10 p-3">
+              <p className="text-xs font-semibold text-lime-300">
+                Trocar por volta de {advice.hours} h de jogo
+                {advice.weeks ? ` (~${advice.weeks} semana${advice.weeks !== 1 ? "s" : ""} p/ este jogador)` : ""}
+              </p>
+              <p className="mt-0.5 text-xs text-slate-400">{advice.reason}</p>
+            </div>
+          </Card>
+        </>
       )}
 
       {job.notes && <Card className="mt-3 py-3 text-sm text-slate-300">{job.notes}</Card>}

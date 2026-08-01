@@ -1,4 +1,4 @@
-// Modelos de dados do STRUNG — The Tennis String Manager
+// Modelos de dados — Alex Pretti Tennis · Gestão de Encordoamento
 
 export type Level =
   | "Iniciante"
@@ -34,6 +34,11 @@ export interface Racquet {
   notes?: string;
   archived?: boolean;
   createdAt: string;
+  // specs vindas do catálogo TWU, quando a raquete foi escolhida na busca
+  specCode?: string;
+  balance?: number; // cm
+  swingweight?: number;
+  flex?: number; // RA
 }
 
 

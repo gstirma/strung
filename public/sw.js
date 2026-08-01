@@ -1,6 +1,6 @@
-// Service worker do STRUNG — cache offline simples (network-first para páginas,
+// Service worker — cache offline simples (network-first para páginas,
 // cache-first para assets estáticos).
-const CACHE = "strung-v1";
+const CACHE = "apt-encordoamento-v2";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/manifest.json", "/icon.svg"])));

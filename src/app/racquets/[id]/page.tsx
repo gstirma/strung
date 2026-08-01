@@ -6,7 +6,7 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useDB, actions } from "@/lib/store";
 import {
-  jobsOfRacquet, suggestNextTension, fmtBRL, fmtDate, daysSince, avgFeedback,
+  jobsOfRacquet, suggestNextTension, fmtBRL, fmtDate, daysSince, avgFeedback, otherUnit,
 } from "@/lib/logic";
 import { TensionChart, FeedbackRadar } from "@/components/charts";
 import { Card, SectionTitle, Btn, Badge, RatingDots } from "@/components/ui";
@@ -75,9 +75,12 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
               {last.brokeAt ? `quebrou em ${fmtDate(last.brokeAt)}` : `${daysSince(last.date)} dias em uso`}
             </p>
           </div>
-          <p className="text-2xl font-black text-sky-300">
-            {last.tensionMain}<span className="text-sm font-medium text-slate-400"> {unit}</span>
-          </p>
+          <div className="text-right">
+            <p className="text-2xl font-black text-sky-300">
+              {last.tensionMain}<span className="text-sm font-medium text-slate-400"> {unit}</span>
+            </p>
+            <p className="text-xs text-slate-500">{otherUnit(last.tensionMain, unit)}</p>
+          </div>
         </Card>
       )}
 
@@ -93,6 +96,7 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
             {suggestion.cross !== suggestion.tension && (
               <span className="text-base font-semibold text-slate-400"> / {suggestion.cross} {unit} travessa</span>
             )}
+            <span className="ml-2 text-sm font-medium text-slate-500">({otherUnit(suggestion.tension, unit)})</span>
           </p>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-xs text-slate-400">
             {suggestion.rationale.map((r, i) => <li key={i}>{r}</li>)}

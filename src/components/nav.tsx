@@ -19,10 +19,10 @@ export function Header() {
       <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-baseline gap-1.5">
           <span className="bg-gradient-to-r from-white via-sky-300 to-blue-500 bg-clip-text text-xl font-black italic tracking-tight text-transparent">
-            STRUNG
+            Alex Pretti
           </span>
           <span className="text-[10px] font-medium uppercase tracking-widest text-lime-300">
-            Alex Pretti Tennis
+            Tennis
           </span>
         </Link>
         <Link href="/settings" aria-label="Configurações" className="rounded-full p-2 text-slate-400 hover:bg-white/5">

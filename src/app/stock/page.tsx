@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { useDB, actions, uid } from "@/lib/store";
 import { stockCostPerMeter, fmtBRL } from "@/lib/logic";
-import { searchStrings, findString, materialPT } from "@/lib/twu-data";
+import { searchStrings, findString, stringHeadline } from "@/lib/twu-data";
+import { StringPicker } from "@/components/string-picker";
 import { Card, Btn, Field, inputCls, EmptyState, Badge, SectionTitle } from "@/components/ui";
 import { Plus, X, Trash2, Star } from "lucide-react";
 
@@ -49,9 +50,16 @@ export default function StockPage() {
 
       {adding && (
         <Card className="mb-4 flex flex-col gap-3">
-          <Field label="Corda (marca e modelo) *">
-            <input className={inputCls} placeholder="Solinco Hyper-G" value={form.stringName}
-              onChange={(e) => setForm({ ...form, stringName: e.target.value })} />
+          <Field label="Corda *">
+            <StringPicker
+              value={form.stringName || undefined}
+              offered={db.offeredStrings}
+              placeholder="Buscar no banco TWU…"
+              onSelect={(s) =>
+                setForm({ ...form, stringName: s.name, gauge: s.gauge ?? form.gauge })
+              }
+              onManual={(name) => setForm({ ...form, stringName: name })}
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Calibre (mm)">
@@ -144,13 +152,9 @@ export default function StockPage() {
                   className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left active:scale-[0.99] ${
                     offered ? "border-lime-300/40 bg-lime-300/10" : "border-white/10"
                   }`}>
-                  <div>
-                    <p className="text-sm text-white">{s.name}</p>
-                    <p className="text-[11px] text-slate-400">
-                      {materialPT(s.material)}
-                      {s.stiffness != null && ` · rigidez ${s.stiffness}`}
-                      {s.spin != null && ` · spin ${s.spin}`}
-                    </p>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-white">{s.name}</p>
+                    <p className="truncate text-[11px] text-slate-400">{stringHeadline(s)}</p>
                   </div>
                   <Star size={16} className={offered ? "fill-lime-300 text-lime-300" : "text-slate-600"} />
                 </button>

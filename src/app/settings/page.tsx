@@ -21,7 +21,7 @@ export default function SettingsPage() {
     const blob = new Blob([actions.exportAll()], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `strung-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `backup-encordoamento-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -88,7 +88,7 @@ export default function SettingsPage() {
       </Card>
 
       <p className="mt-8 text-center text-[10px] text-slate-600">
-        STRUNG · The Tennis String Manager — {s.businessName}<br />
+        {s.businessName} · Gestão de Encordoamento<br />
         Qualidade · Precisão · Performance
       </p>
     </div>

@@ -4,6 +4,20 @@ import { findString } from "./twu-data";
 export const fmtBRL = (v: number | undefined) =>
   (v ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+export const LB_PER_KG = 2.20462;
+
+/** Converte a tensão para a outra unidade, para mostrar as duas juntas */
+export function otherUnit(value: number, unit: "kg" | "lb"): string {
+  const v = unit === "lb" ? value / LB_PER_KG : value * LB_PER_KG;
+  return `${v.toFixed(1).replace(".", ",")} ${unit === "lb" ? "kg" : "lb"}`;
+}
+
+/** "52/50 lb" — principal e travessa quando forem diferentes */
+export function tensionLabel(job: { tensionMain: number; tensionCross?: number }, unit: string): string {
+  const cross = job.tensionCross && job.tensionCross !== job.tensionMain ? `/${job.tensionCross}` : "";
+  return `${job.tensionMain}${cross} ${unit}`;
+}
+
 export const fmtDate = (iso: string | undefined) =>
   iso ? new Date(iso).toLocaleDateString("pt-BR") : "—";
 
