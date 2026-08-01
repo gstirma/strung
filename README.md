@@ -1,4 +1,4 @@
-# STRUNG · The Tennis String Manager
+#The Tennis String Manager
 
 **Alex Pretti Tennis — Qualidade · Precisão · Performance**
 
