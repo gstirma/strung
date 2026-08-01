@@ -54,15 +54,22 @@ Abra http://localhost:3000. No celular (mesma rede Wi-Fi), use o IP da máquina
 
 Repositório: [github.com/gstirma/strung](https://github.com/gstirma/strung) (público).
 
-Publicado no **GitHub Pages** em **https://gstirma.github.io/strung/** — todo `git push`
-na `main` dispara o workflow `.github/workflows/deploy.yml`, que faz o export estático
-e publica. Não precisa de servidor nem de computador ligado.
+Publicado no **GitHub Pages** em **https://gstirma.github.io/strung/**.
+Não precisa de servidor nem de computador ligado — o GitHub serve o site.
 
-Para publicar uma alteração:
+Para publicar uma alteração, basta rodar:
 
 ```bash
-git add -A && git commit -m "descrição" && git push
+./deploy.sh "descrição da mudança"
 ```
+
+O script salva o código na `main`, gera o site estático e envia para o branch
+`gh-pages`, que é o que o Pages publica. Leva cerca de um minuto para o ar.
+
+> Dá para automatizar isso a cada push: o arquivo `.github/workflows/deploy.yml`
+> está pronto, mas o GitHub exige a permissão `workflow` no token para enviá-lo.
+> Rode `gh auth refresh -h github.com -s workflow` e depois comite o workflow —
+> a partir daí todo `git push` publica sozinho e o `deploy.sh` deixa de ser necessário.
 
 ### Por que as rotas usam query string
 
