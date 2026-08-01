@@ -54,9 +54,9 @@ Abra http://localhost:3000. No celular (mesma rede Wi-Fi), use o IP da máquina
 
 Repositório: [github.com/gstirma/strung](https://github.com/gstirma/strung) (público).
 
-Hospedado na **Vercel**, conectada a este repositório — todo `git push` na `main`
-publica a nova versão automaticamente. O Next.js é detectado sozinho, sem nenhuma
-configuração (nada de `vercel.json`, variáveis de ambiente ou build command).
+Publicado no **GitHub Pages** em **https://gstirma.github.io/strung/** — todo `git push`
+na `main` dispara o workflow `.github/workflows/deploy.yml`, que faz o export estático
+e publica. Não precisa de servidor nem de computador ligado.
 
 Para publicar uma alteração:
 
@@ -64,10 +64,18 @@ Para publicar uma alteração:
 git add -A && git commit -m "descrição" && git push
 ```
 
-> **Atenção aos QR Codes:** eles são gerados a partir da URL em que o app está aberto.
-> Defina a URL definitiva (ou um domínio próprio) **antes** de imprimir e colar os QR
-> nas raquetes — se a URL mudar depois, os códigos já colados param de abrir o prontuário.
+### Por que as rotas usam query string
 
-> **Dados por dispositivo:** como tudo fica no `localStorage`, cada aparelho/URL tem sua
-> própria base. Ao migrar de `localhost` para a URL publicada, use
-> Configurações → Exportar/Importar para levar os dados.
+O GitHub Pages serve apenas arquivos estáticos, então o app é exportado com
+`output: "export"` e as telas de detalhe usam `?id=` em vez de rota dinâmica
+(`/racquet?id=…`, `/job?id=…`, `/player?id=…`). Os caminhos ficam centralizados
+em `src/lib/routes.ts` — use sempre `routes.racquet(id)` e afins, nunca a URL crua.
+O `basePath` (`/strung`) vem da variável `NEXT_PUBLIC_BASE_PATH` no build.
+
+> **Atenção aos QR Codes:** eles apontam para a URL onde o app está publicado.
+> Se um dia você trocar para um domínio próprio, os QR já colados nas raquetes
+> param de funcionar — defina o endereço definitivo antes de imprimir.
+
+> **Dados por dispositivo:** como tudo fica no `localStorage`, cada aparelho tem sua
+> própria base. Use Configurações → Exportar/Importar para levar os dados de um
+> aparelho para outro.

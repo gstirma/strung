@@ -8,6 +8,7 @@ import { RacquetSpec } from "@/lib/racquets-data";
 import { RacquetPicker, RacquetSpecChips } from "@/components/racquet-picker";
 import { Card, Field, inputCls, Btn, SectionTitle } from "@/components/ui";
 import { X } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 function NewRacquetForm() {
   const db = useDB();
@@ -61,7 +62,7 @@ function NewRacquetForm() {
       flex: picked?.flex,
       createdAt: new Date().toISOString(),
     });
-    router.push(`/racquets/${id}`);
+    router.push(routes.racquet(id));
   };
 
   return (

@@ -5,6 +5,7 @@ import { lastJobOfRacquet, fmtDate } from "@/lib/logic";
 import { Card, Btn, EmptyState, Badge } from "@/components/ui";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 export default function RacquetsPage() {
   const db = useDB();
@@ -29,7 +30,7 @@ export default function RacquetsPage() {
             const player = db.players.find((p) => p.id === r.playerId);
             const last = lastJobOfRacquet(db, r.id);
             return (
-              <Link key={r.id} href={`/racquets/${r.id}`}>
+              <Link key={r.id} href={routes.racquet(r.id)}>
                 <Card className="flex items-center justify-between py-3">
                   <div>
                     <p className="text-sm font-semibold text-white">{r.brand} {r.model}</p>

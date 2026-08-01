@@ -6,6 +6,7 @@ import { useDB, actions, uid } from "@/lib/store";
 import { Level, CourtType } from "@/lib/types";
 import { Card, Btn, Field, inputCls, EmptyState, Badge } from "@/components/ui";
 import { Plus, X } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 const LEVELS: Level[] = ["Iniciante", "Intermediário", "Avançado", "Competitivo", "Profissional"];
 const COURTS: CourtType[] = ["Saibro", "Rápida", "Grama", "Variada"];
@@ -88,7 +89,7 @@ export default function PlayersPage() {
           {db.players.map((p) => {
             const racquets = db.racquets.filter((r) => r.playerId === p.id && !r.archived);
             return (
-              <Link key={p.id} href={`/players/${p.id}`}>
+              <Link key={p.id} href={routes.player(p.id)}>
                 <Card className="flex items-center justify-between py-3">
                   <div>
                     <p className="text-sm font-semibold text-white">{p.name}</p>

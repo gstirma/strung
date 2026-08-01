@@ -1,15 +1,16 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDB, actions } from "@/lib/store";
 import { lastJobOfRacquet, fmtDate, fmtBRL } from "@/lib/logic";
 import { Card, SectionTitle, Btn, Badge, EmptyState } from "@/components/ui";
 import { Plus, Trash2, MessageCircle } from "lucide-react";
+import { routes } from "@/lib/routes";
 
-export default function PlayerDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function PlayerDetailInner() {
+  const id = useSearchParams().get("id") ?? "";
   const db = useDB();
   const router = useRouter();
 
@@ -45,7 +46,7 @@ export default function PlayerDetail({ params }: { params: Promise<{ id: string 
       </Card>
 
       <SectionTitle action={
-        <Link href={`/racquets/new?player=${player.id}`} className="flex items-center gap-1 text-xs text-lime-300">
+        <Link href={routes.newRacquet(player.id)} className="flex items-center gap-1 text-xs text-lime-300">
           <Plus size={12} /> adicionar
         </Link>
       }>
@@ -53,13 +54,13 @@ export default function PlayerDetail({ params }: { params: Promise<{ id: string 
       </SectionTitle>
 
       {racquets.length === 0 ? (
-        <EmptyState title="Sem raquetes" action={<Btn href={`/racquets/new?player=${player.id}`} variant="lime">Cadastrar raquete</Btn>} />
+        <EmptyState title="Sem raquetes" action={<Btn href={routes.newRacquet(player.id)} variant="lime">Cadastrar raquete</Btn>} />
       ) : (
         <div className="flex flex-col gap-2">
           {racquets.map((r) => {
             const last = lastJobOfRacquet(db, r.id);
             return (
-              <Link key={r.id} href={`/racquets/${r.id}`}>
+              <Link key={r.id} href={routes.racquet(r.id)}>
                 <Card className="flex items-center justify-between py-3">
                   <div>
                     <p className="text-sm font-semibold text-white">{r.brand} {r.model}</p>
@@ -79,12 +80,20 @@ export default function PlayerDetail({ params }: { params: Promise<{ id: string 
         <Btn variant="danger" onClick={() => {
           if (confirm(`Excluir ${player.name}, suas raquetes e todo o histórico?`)) {
             actions.deletePlayer(player.id);
-            router.push("/players");
+            router.push(routes.players);
           }
         }}>
           <Trash2 size={14} /> Excluir jogador
         </Btn>
       </div>
     </div>
+  );
+}
+
+export default function PlayerDetail() {
+  return (
+    <Suspense fallback={<p className="py-10 text-center text-sm text-slate-400">Carregando…</p>}>
+      <PlayerDetailInner />
+    </Suspense>
   );
 }

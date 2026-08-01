@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header, BottomNav } from "@/components/nav";
 import { RegisterSW } from "@/components/register-sw";
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
@@ -11,9 +13,9 @@ export const metadata: Metadata = {
   title: "Alex Pretti Tennis · Encordoamento",
   description:
     "Prontuário da raquete: histórico de encordoamentos, tensões, cordas, avaliações e estoque. Alex Pretti Tennis — Qualidade, Precisão, Performance.",
-  manifest: "/manifest.json",
+  manifest: `${BASE}/manifest.json`,
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Alex Pretti" },
-  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
+  icons: { icon: `${BASE}/icon.svg`, apple: `${BASE}/apple-touch-icon.png` },
 };
 
 export const viewport: Viewport = {

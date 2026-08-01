@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useDB, actions } from "@/lib/store";
@@ -12,9 +12,10 @@ import { TensionChart, FeedbackRadar } from "@/components/charts";
 import { Card, SectionTitle, Btn, Badge, RatingDots } from "@/components/ui";
 import { QrCode, Sparkles, Trash2, FileDown } from "lucide-react";
 import { racquetReportBlob, sharePdf } from "@/lib/pdf";
+import { routes, absoluteUrl } from "@/lib/routes";
 
-export default function RacquetDossier({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function RacquetDossierInner() {
+  const id = useSearchParams().get("id") ?? "";
   const db = useDB();
   const router = useRouter();
   const [showQR, setShowQR] = useState(false);
@@ -30,7 +31,7 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
   const suggestion = suggestNextTension(db, racquet.id, db.settings.tensionUnit);
   const avg = avgFeedback(jobs);
   const unit = db.settings.tensionUnit;
-  const qrUrl = typeof window !== "undefined" ? `${window.location.origin}/racquets/${racquet.id}` : "";
+  const qrUrl = absoluteUrl(routes.racquet(racquet.id));
 
   return (
     <div>
@@ -41,7 +42,7 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
             <p className="text-[10px] font-semibold uppercase tracking-widest text-lime-300">Prontuário da Raquete</p>
             <h1 className="mt-1 text-xl font-bold text-white">{racquet.brand} {racquet.model}</h1>
             <p className="text-sm text-slate-400">
-              {player ? <Link href={`/players/${player.id}`} className="text-sky-300">{player.name}</Link> : "sem jogador"}
+              {player ? <Link href={routes.player(player.id)} className="text-sky-300">{player.name}</Link> : "sem jogador"}
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {racquet.headSize && <Badge>{racquet.headSize} pol²</Badge>}
@@ -105,7 +106,7 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
       )}
 
       <div className="mt-3 flex gap-2">
-        <Btn href={`/jobs/new?racquet=${racquet.id}`} variant="lime" className="flex-1">
+        <Btn href={routes.newJob(racquet.id)} variant="lime" className="flex-1">
           + Novo encordoamento
         </Btn>
         <Btn variant="ghost" disabled={pdfBusy} onClick={async () => {
@@ -145,7 +146,7 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
       <SectionTitle>Histórico de cordas ({jobs.length})</SectionTitle>
       <div className="flex flex-col gap-2">
         {jobsDesc.map((j) => (
-          <Link key={j.id} href={`/jobs/${j.id}`}>
+          <Link key={j.id} href={routes.job(j.id)}>
             <Card className="py-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -176,12 +177,20 @@ export default function RacquetDossier({ params }: { params: Promise<{ id: strin
         <Btn variant="danger" onClick={() => {
           if (confirm(`Excluir a raquete ${racquet.brand} ${racquet.model} e todo o histórico?`)) {
             actions.deleteRacquet(racquet.id);
-            router.push("/racquets");
+            router.push(routes.racquets);
           }
         }}>
           <Trash2 size={14} /> Excluir raquete
         </Btn>
       </div>
     </div>
+  );
+}
+
+export default function RacquetDossier() {
+  return (
+    <Suspense fallback={<p className="py-10 text-center text-sm text-slate-400">Carregando…</p>}>
+      <RacquetDossierInner />
+    </Suspense>
   );
 }

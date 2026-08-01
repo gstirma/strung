@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDB, actions } from "@/lib/store";
 import { fmtBRL, fmtDate, daysSince, otherUnit } from "@/lib/logic";
@@ -10,9 +10,10 @@ import { Scissors, Trash2, FileDown } from "lucide-react";
 import { jobReceiptBlob, sharePdf } from "@/lib/pdf";
 import { findString, stringHeadline, usageAdvice, TWU_STRINGS } from "@/lib/twu-data";
 import { StringProfileBars, TensionDecayChart } from "@/components/charts";
+import { routes } from "@/lib/routes";
 
-export default function JobDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function JobDetailInner() {
+  const id = useSearchParams().get("id") ?? "";
   const db = useDB();
   const router = useRouter();
 
@@ -48,7 +49,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         <h1 className="mt-1 text-lg font-bold text-white">{job.stringName} {job.gauge}</h1>
         {job.hybrid && job.crossStringName && <p className="text-sm text-slate-400">híbrido com {job.crossStringName}</p>}
         <p className="text-sm text-slate-400">
-          {racquet && <Link href={`/racquets/${racquet.id}`} className="text-sky-300">{racquet.brand} {racquet.model}</Link>}
+          {racquet && <Link href={routes.racquet(racquet.id)} className="text-sky-300">{racquet.brand} {racquet.model}</Link>}
           {player && <> · {player.name}</>}
         </p>
         <div className="mt-3 flex items-end justify-between">
@@ -187,12 +188,20 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         <Btn variant="danger" onClick={() => {
           if (confirm("Excluir este encordoamento?")) {
             actions.deleteJob(job.id);
-            router.push(racquet ? `/racquets/${racquet.id}` : "/");
+            router.push(racquet ? routes.racquet(racquet.id) : routes.home);
           }
         }}>
           <Trash2 size={14} /> Excluir
         </Btn>
       </div>
     </div>
+  );
+}
+
+export default function JobDetail() {
+  return (
+    <Suspense fallback={<p className="py-10 text-center text-sm text-slate-400">Carregando…</p>}>
+      <JobDetailInner />
+    </Suspense>
   );
 }

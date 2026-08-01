@@ -10,6 +10,7 @@ import { StringPicker } from "@/components/string-picker";
 import { StringProfileBars } from "@/components/charts";
 import { Card, Field, inputCls, Btn } from "@/components/ui";
 import { Sparkles } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 function NewJobForm() {
   const db = useDB();
@@ -76,7 +77,7 @@ function NewJobForm() {
       totalCharged: totalNum || undefined,
       notes: notes || undefined,
     });
-    router.push(`/jobs/${id}`);
+    router.push(routes.job(id));
   };
 
   return (

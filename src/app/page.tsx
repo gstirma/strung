@@ -4,6 +4,7 @@ import { useDB, actions } from "@/lib/store";
 import { restringAlerts, monthRevenue, fmtBRL, fmtDate } from "@/lib/logic";
 import { Card, SectionTitle, Btn, Badge, EmptyState, Stat } from "@/components/ui";
 import Link from "next/link";
+import { routes } from "@/lib/routes";
 
 const SLOGANS = [
   "Sua raquete em boas mãos. Sua evolução em primeiro lugar.",
@@ -49,7 +50,7 @@ export default function Dashboard() {
           </p>
           <div className="flex flex-col gap-2">
             {alerts.slice(0, 6).map((a) => (
-              <Link key={a.racquet.id} href={`/racquets/${a.racquet.id}`}>
+              <Link key={a.racquet.id} href={routes.racquet(a.racquet.id)}>
                 <Card className="flex items-center justify-between py-3">
                   <div>
                     <p className="text-sm font-semibold text-white">
@@ -74,7 +75,7 @@ export default function Dashboard() {
             {db.jobs.slice(0, 5).map((j) => {
               const r = db.racquets.find((x) => x.id === j.racquetId);
               return (
-                <Link key={j.id} href={`/jobs/${j.id}`}>
+                <Link key={j.id} href={routes.job(j.id)}>
                   <Card className="flex items-center justify-between py-3">
                     <div>
                       <p className="text-sm font-medium text-white">{j.stringName} {j.gauge}</p>
