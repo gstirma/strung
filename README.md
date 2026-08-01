@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# STRUNG · The Tennis String Manager
 
-## Getting Started
+**Alex Pretti Tennis — Qualidade · Precisão · Performance**
 
-First, run the development server:
+PWA para controle completo de encordoamento de raquetes de tênis: jogadores,
+raquetes, cordas, tensões, avaliações, estoque e lucratividade.
+
+## O diferencial: Prontuário da Raquete
+
+- 📈 Gráfico de evolução da tensão ao longo do tempo
+- 🎾 Histórico de todas as cordas usadas na raquete
+- 📊 Radar de desempenho (controle, potência, spin, conforto, durabilidade) avaliado pelo jogador
+- 🧠 Sugestão inteligente da próxima tensão com base no histórico e nas avaliações
+- 📱 QR Code para colar na raquete — escaneou, abriu o prontuário
+- 🏆 Perfil do jogador (nível, estilo, frequência, quadra, bola)
+- 🧵 Custo automático por serviço (custo do rolo ÷ metragem × metros usados)
+- 📦 Estoque com baixa automática de metros e alerta de fim de rolo
+- ⏰ Alerta de troca: a cada 3–4 meses ou 15–20 h de jogo (ajustado pela frequência do jogador)
+- 🔬 Banco de cordas real da **TWU** (Tennis Warehouse University): ~750 cordas com rigidez,
+  perda de tensão, retorno de energia e potencial de spin medidos em laboratório
+- ⭐ Marcação das cordas que você oferece — viram atalho no formulário e tabela comparativa nos PDFs
+- 📄 Exportação em **PDF** para enviar ao cliente (WhatsApp/e-mail): prontuário completo (A4)
+  e comprovante do serviço (A5), com a marca, os dados TWU e a recomendação de troca
+
+## Rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000. No celular (mesma rede Wi-Fi), use o IP da máquina
+(ex.: `http://192.168.x.x:3000`) e instale como app:
+**iPhone** Safari → Compartilhar → Adicionar à Tela de Início ·
+**Android** Chrome → ⋮ → Instalar aplicativo.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Arquitetura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 15 (App Router) + Tailwind 4 + Recharts + qrcode.react + @react-pdf/renderer**
+- **Local-first**: dados em `localStorage` via `src/lib/store.ts` (funciona 100% offline;
+  backup por exportar/importar JSON em Configurações)
+- **Supabase pronto**: schema completo com RLS em `supabase/schema.sql` — para sincronizar
+  na nuvem/multiusuário, basta criar o projeto no Supabase e trocar a camada `store.ts`
+- `src/lib/twu-data.ts` — banco de cordas extraído da
+  [TWU String Performance Database](https://twu.tennis-warehouse.com/learning_center/reporter2.php)
+  na condição de referência (51 lbs, swing médio), com busca por nome/material
+- `src/lib/logic.ts` — sugestão de tensão, alertas de troca e estatísticas.
+  A sugestão cruza as avaliações do jogador com os dados TWU da corda
+  (ex.: desconforto + rigidez > 220 lb/pol → recomenda corda mais macia)
+- `src/lib/pdf.tsx` — geração dos PDFs; usa a Web Share API no celular
+  (abre o menu de compartilhar direto no WhatsApp) e cai para download no desktop
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel: `npx vercel` na raiz do projeto (build já validado com `next build`).

@@ -1,103 +1,103 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useDB, actions } from "@/lib/store";
+import { restringAlerts, monthRevenue, fmtBRL, fmtDate } from "@/lib/logic";
+import { Card, SectionTitle, Btn, Badge, EmptyState, Stat } from "@/components/ui";
+import Link from "next/link";
+
+const SLOGANS = [
+  "Sua raquete em boas mãos. Sua evolução em primeiro lugar.",
+  "Qualidade · Precisão · Performance.",
+  "Cada detalhe faz a diferença dentro e fora da quadra.",
+  "+ Desempenho · + Controle · + Durabilidade.",
+];
+
+export default function Dashboard() {
+  const db = useDB();
+  const alerts = restringAlerts(db);
+  const { revenue, profit, count } = monthRevenue(db);
+  const slogan = SLOGANS[new Date().getDate() % SLOGANS.length];
+  const empty = db.players.length === 0 && db.racquets.length === 0;
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div>
+      <p className="mb-4 text-center text-xs italic text-slate-400">“{slogan}”</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      {empty ? (
+        <EmptyState
+          title="Bem-vindo ao STRUNG!"
+          subtitle="Cadastre um jogador e uma raquete para começar o prontuário — ou carregue dados de exemplo para explorar o app."
+          action={
+            <div className="flex gap-2">
+              <Btn variant="lime" onClick={() => actions.seedDemo()}>Carregar exemplo</Btn>
+              <Btn href="/players" variant="ghost">Começar</Btn>
+            </div>
+          }
+        />
+      ) : (
+        <>
+          <div className="flex gap-3">
+            <Stat label="Serviços no mês" value={String(count)} />
+            <Stat label="Faturamento" value={fmtBRL(revenue)} sub={`lucro ${fmtBRL(profit)}`} />
+          </div>
+
+          <SectionTitle action={<Link href="/racquets" className="text-xs text-sky-300">ver todas</Link>}>
+            Quando trocar as cordas?
+          </SectionTitle>
+          <p className="mb-2 text-xs text-slate-500">
+            Regra da casa: a cada <b className="text-lime-300">3–4 meses</b> ou <b className="text-lime-300">15–20 h de jogo</b>.
+          </p>
+          <div className="flex flex-col gap-2">
+            {alerts.slice(0, 6).map((a) => (
+              <Link key={a.racquet.id} href={`/racquets/${a.racquet.id}`}>
+                <Card className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {a.racquet.brand} {a.racquet.model}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {a.player?.name ?? "—"}
+                      {a.lastJob && !a.lastJob.brokeAt && ` · encordoada em ${fmtDate(a.lastJob.date)}`}
+                    </p>
+                  </div>
+                  {a.status === "sem-corda" && <Badge tone="red">sem corda</Badge>}
+                  {a.status === "vencida" && <Badge tone="red">{a.days} dias · trocar!</Badge>}
+                  {a.status === "atencao" && <Badge tone="amber">{a.days} dias</Badge>}
+                  {a.status === "ok" && <Badge tone="lime">{a.days} dias · ok</Badge>}
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          <SectionTitle>Últimos encordoamentos</SectionTitle>
+          <div className="flex flex-col gap-2">
+            {db.jobs.slice(0, 5).map((j) => {
+              const r = db.racquets.find((x) => x.id === j.racquetId);
+              return (
+                <Link key={j.id} href={`/jobs/${j.id}`}>
+                  <Card className="flex items-center justify-between py-3">
+                    <div>
+                      <p className="text-sm font-medium text-white">{j.stringName} {j.gauge}</p>
+                      <p className="text-xs text-slate-400">
+                        {r ? `${r.brand} ${r.model}` : "—"} · {fmtDate(j.date)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-sky-300">
+                        {j.tensionMain}{j.tensionCross && j.tensionCross !== j.tensionMain ? `/${j.tensionCross}` : ""} {db.settings.tensionUnit}
+                      </p>
+                      <p className="text-xs text-lime-300">{fmtBRL(j.totalCharged)}</p>
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+            {db.jobs.length === 0 && (
+              <EmptyState title="Nenhum encordoamento ainda" action={<Btn href="/jobs/new" variant="lime">Registrar o primeiro</Btn>} />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
